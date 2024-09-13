@@ -4,12 +4,11 @@ function createCard(card, deleteCard) {
     .querySelector(".places__item")
     .cloneNode(true);
   contentTemplate.querySelector(".card__image").src = card.link;
+  contentTemplate.querySelector(".card__image").alt = card.name;
   contentTemplate.querySelector(".card__title").textContent = card.name;
   contentTemplate
     .querySelector(".card__delete-button")
     .addEventListener("click", function () {
-      contentTemplate.remove();
-
       deleteCard(contentTemplate);
     });
   return contentTemplate;
