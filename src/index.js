@@ -3,64 +3,82 @@ import "./index.css";
 import { createCard, deleteCard, likeCard } from "./components/card";
 
 import { initialCards } from "./cards";
-import { createPopup } from "./components/modal";
+import { openPopup, closePopup } from "./components/modal";
 
-const cardList = document.querySelector(".places__list");
+const cardsList = document.querySelector(".places__list");
 
 const editProfileForm = document.forms.edit_profile;
+const editFormNameInput = editProfileForm.elements.name;
+const editFormDescriptionInput = editProfileForm.elements.description;
+
 const newCardForm = document.forms["new-place"];
+const newCardNameInput = newCardForm.elements["place-name"];
+const newCardLinkInput = newCardForm.elements.link;
 
 const profileTitle = document.querySelector(".profile__title");
 const profileDescription = document.querySelector(".profile__description");
 
-const popups = [
-  {
-    triggerSelector: ".profile__edit-button",
-    popupSelector: ".popup_type_edit",
-    setup: (options) => {
-      const { closePopup } = options;
+const editProfilePopup = document.querySelector(".popup_type_edit");
+const newCardPopup = document.querySelector(".popup_type_new-card");
+const cardImagePopup = document.querySelector(".popup_type_image");
+const popupImage = document.querySelector(".popup__image");
 
-      const name = editProfileForm.elements.name;
-      const description = editProfileForm.elements.description;
+const editProfileButton = document.querySelector(".profile__edit-button");
+const addButton = document.querySelector(".profile__add-button");
 
-      name.value = profileTitle.textContent;
-      description.value = profileDescription.textContent;
+const allPopups = document.querySelectorAll(".popup");
 
-      editProfileForm.addEventListener("submit", function (evt) {
-        evt.preventDefault();
-        profileTitle.textContent = name.value;
-        profileDescription.textContent = description.value;
-        closePopup();
-      });
-    },
-  },
+function openImagePopup(card) {
+  popupImage.src = card.link;
+  openPopup(cardImagePopup);
+}
 
-  {
-    triggerSelector: ".profile__add-button",
-    popupSelector: ".popup_type_new-card",
-    beforeClose: () => {
-      newCardForm.reset();
-    },
-    setup: (options) => {
-      const { closePopup } = options;
+allPopups.forEach((popup) => {
+  const closeButton = popup.querySelector(".popup__close");
+  closeButton.addEventListener("click", () => {
+    closePopup(popup);
+  });
 
-      newCardForm.addEventListener("submit", function (evt) {
-        evt.preventDefault();
+  popup.addEventListener("mousedown", (evt) => {
+    if (evt.target.classList.contains("popup")) {
+      closePopup(popup);
+    }
+  });
+});
 
-        const name = newCardForm.elements["place-name"].value;
-        const link = newCardForm.elements.link.value;
+editProfileButton.addEventListener("click", () => {
+  openPopup(editProfilePopup);
+});
 
-        cardList.prepend(createCard({ name, link }, deleteCard, likeCard));
+addButton.addEventListener("click", () => {
+  openPopup(newCardPopup);
+});
 
-        newCardForm.reset();
-        closePopup();
-      });
-    },
-  },
-];
+newCardForm.addEventListener("submit", function (evt) {
+  evt.preventDefault();
+
+  cardsList.prepend(
+    createCard(
+      { name: newCardNameInput.value, link: newCardLinkInput.value },
+      deleteCard,
+      likeCard,
+      openImagePopup
+    )
+  );
+
+  newCardForm.reset();
+  closePopup(newCardPopup);
+});
+
+editProfileForm.addEventListener("submit", function (evt) {
+  evt.preventDefault();
+
+  profileTitle.textContent = editFormNameInput.value;
+  profileDescription.textContent = editFormDescriptionInput.value;
+
+  closePopup(editProfilePopup);
+});
 
 initialCards.forEach((card) =>
-  cardList.append(createCard(card, deleteCard, likeCard))
+  cardsList.append(createCard(card, deleteCard, likeCard, openImagePopup))
 );
-
-popups.forEach(createPopup);
