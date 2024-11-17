@@ -22,6 +22,7 @@ const editProfilePopup = document.querySelector(".popup_type_edit");
 const newCardPopup = document.querySelector(".popup_type_new-card");
 const cardImagePopup = document.querySelector(".popup_type_image");
 const popupImage = document.querySelector(".popup__image");
+const popupCaption = document.querySelector(".popup__caption");
 
 const editProfileButton = document.querySelector(".profile__edit-button");
 const addButton = document.querySelector(".profile__add-button");
@@ -30,6 +31,7 @@ const allPopups = document.querySelectorAll(".popup");
 
 function openImagePopup(card) {
   popupImage.src = card.link;
+  popupCaption.textContent = card.name;
   openPopup(cardImagePopup);
 }
 
