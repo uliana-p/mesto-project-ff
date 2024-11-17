@@ -47,6 +47,8 @@ allPopups.forEach((popup) => {
 });
 
 editProfileButton.addEventListener("click", () => {
+  editFormNameInput.value = profileTitle.textContent;
+  editFormDescriptionInput.value = profileDescription.textContent;
   openPopup(editProfilePopup);
 });
 
