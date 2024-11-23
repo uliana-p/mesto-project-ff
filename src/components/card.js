@@ -1,3 +1,13 @@
+import {
+  userId,
+  deleteCard as apiDeleteCard,
+  addLike,
+  deleteLike,
+} from "./api";
+
+const isCardLikedByUser = (card) =>
+  card.likes?.some((like) => like._id === userId);
+
 export function createCard(card, onDeleteClick, onLikeClick, onImageClick) {
   const cardTemplate = document.querySelector("#card-template").content;
   const contentTemplate = cardTemplate
@@ -10,25 +20,55 @@ export function createCard(card, onDeleteClick, onLikeClick, onImageClick) {
     onImageClick(card);
   });
 
+  contentTemplate.querySelector(".card__likes-counter").textContent =
+    card.likes?.length ?? 0;
+
   contentTemplate.querySelector(".card__title").textContent = card.name;
-  contentTemplate
-    .querySelector(".card__delete-button")
-    .addEventListener("click", () => {
-      onDeleteClick(contentTemplate);
+  const deleteButton = contentTemplate.querySelector(".card__delete-button");
+
+  if (card.owner._id !== userId) {
+    deleteButton.remove();
+  } else {
+    deleteButton.addEventListener("click", () => {
+      onDeleteClick(contentTemplate, card);
     });
+  }
 
   const likeButton = contentTemplate.querySelector(".card__like-button");
+  likeButton.classList.toggle(
+    "card__like-button_is-active",
+    isCardLikedByUser(card),
+  );
   likeButton.addEventListener("click", () => {
-    onLikeClick(likeButton);
+    onLikeClick(contentTemplate, likeButton, card);
   });
 
   return contentTemplate;
 }
 
-export function deleteCard(contentTemplate) {
-  contentTemplate.remove();
+export function deleteCard(contentTemplate, card) {
+  apiDeleteCard(card._id)
+    .then(() => {
+      contentTemplate.remove();
+    })
+    .catch(console.error);
 }
 
-export function likeCard(likeButton) {
-  likeButton.classList.toggle("card__like-button_is-active");
+export async function likeCard(contentTemplate, likeButton, card) {
+  const isLiked = likeButton.classList.contains("card__like-button_is-active");
+  try {
+    let updatedCard;
+    if (isLiked) {
+      updatedCard = await deleteLike(card._id);
+      likeButton.classList.remove("card__like-button_is-active");
+    } else {
+      updatedCard = await addLike(card._id);
+      likeButton.classList.add("card__like-button_is-active");
+    }
+
+    contentTemplate.querySelector(".card__likes-counter").textContent =
+      updatedCard.likes?.length ?? 0;
+  } catch (err) {
+    console.error(err);
+  }
 }

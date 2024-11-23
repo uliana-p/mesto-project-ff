@@ -2,10 +2,26 @@ import "./index.css";
 
 import { createCard, deleteCard, likeCard } from "./components/card";
 
-import { initialCards } from "./cards";
-import { openPopup, closePopup } from "./components/modal";
+import { openPopup, closePopup, startPopupProgress } from "./components/modal";
+import { clearValidation, enableValidation } from "./components/validation";
+import {
+  addCard,
+  getCards,
+  getMe,
+  setUserId,
+  updateAvatar,
+  updateProfile,
+} from "./components/api";
 
 const cardsList = document.querySelector(".places__list");
+
+const avatarImage = document.querySelector(".profile__image");
+
+const updateAvatarPopup = document.querySelector(".popup_type_update-avatar");
+const updateAvatarForm = document.forms.update_avatar;
+const avatarFormUrlInput = updateAvatarForm.querySelector(
+  ".popup__input_type_url",
+);
 
 const editProfileForm = document.forms.edit_profile;
 const editFormNameInput = editProfileForm.elements.name;
@@ -29,6 +45,15 @@ const addButton = document.querySelector(".profile__add-button");
 
 const allPopups = document.querySelectorAll(".popup");
 
+const validationConfig = {
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inactiveButtonClass: "popup__button_disabled",
+  inputErrorClass: "popup__input_type_error",
+  errorClass: "popup__error_visible",
+};
+
 function openImagePopup(card) {
   popupImage.src = card.link;
   popupCaption.textContent = card.name;
@@ -48,41 +73,90 @@ allPopups.forEach((popup) => {
   });
 });
 
+avatarImage.addEventListener("click", () => {
+  avatarFormUrlInput.value = "";
+  clearValidation(updateAvatarForm, validationConfig);
+  openPopup(updateAvatarPopup);
+});
+
+updateAvatarForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const src = avatarFormUrlInput.value;
+  const stop = startPopupProgress(updateAvatarPopup);
+  updateAvatar(src)
+    .then(() => {
+      avatarImage.style = `background-image: url("${src}")`;
+      closePopup(updateAvatarPopup);
+    })
+    .catch(console.error)
+    .finally(stop);
+});
+
 editProfileButton.addEventListener("click", () => {
   editFormNameInput.value = profileTitle.textContent;
   editFormDescriptionInput.value = profileDescription.textContent;
+  clearValidation(editProfileForm, validationConfig);
   openPopup(editProfilePopup);
 });
 
 addButton.addEventListener("click", () => {
+  newCardNameInput.value = "";
+  newCardLinkInput.value = "";
+  clearValidation(newCardForm, validationConfig);
   openPopup(newCardPopup);
 });
 
 newCardForm.addEventListener("submit", function (evt) {
   evt.preventDefault();
 
-  cardsList.prepend(
-    createCard(
-      { name: newCardNameInput.value, link: newCardLinkInput.value },
-      deleteCard,
-      likeCard,
-      openImagePopup
-    )
-  );
+  const newCard = {
+    name: newCardNameInput.value,
+    link: newCardLinkInput.value,
+  };
 
-  newCardForm.reset();
-  closePopup(newCardPopup);
+  const stop = startPopupProgress(newCardPopup);
+
+  addCard(newCard)
+    .then(() => {
+      cardsList.prepend(
+        createCard(newCard, deleteCard, likeCard, openImagePopup),
+      );
+      newCardForm.reset();
+      closePopup(newCardPopup);
+    })
+    .catch(console.error)
+    .finally(stop);
 });
 
 editProfileForm.addEventListener("submit", function (evt) {
   evt.preventDefault();
 
-  profileTitle.textContent = editFormNameInput.value;
-  profileDescription.textContent = editFormDescriptionInput.value;
+  const stop = startPopupProgress(editProfilePopup);
 
-  closePopup(editProfilePopup);
+  updateProfile({
+    name: editFormNameInput.value,
+    about: editFormDescriptionInput.value,
+  })
+    .then(() => {
+      profileTitle.textContent = editFormNameInput.value;
+      profileDescription.textContent = editFormDescriptionInput.value;
+      closePopup(editProfilePopup);
+    })
+    .catch(console.error)
+    .finally(stop);
 });
 
-initialCards.forEach((card) =>
-  cardsList.append(createCard(card, deleteCard, likeCard, openImagePopup))
-);
+enableValidation(validationConfig);
+
+Promise.all([getCards(), getMe()]).then(([cards, me]) => {
+  setUserId(me._id);
+
+  profileTitle.textContent = me.name;
+  profileDescription.textContent = me.about;
+  avatarImage.style = `background-image: url("${me.avatar}")`;
+
+  for (const card of cards) {
+    cardsList.append(createCard(card, deleteCard, likeCard, openImagePopup));
+  }
+});
