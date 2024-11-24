@@ -8,10 +8,11 @@ import {
   addCard,
   getCards,
   getMe,
-  setUserId,
   updateAvatar,
   updateProfile,
 } from "./components/api";
+
+let userId;
 
 const cardsList = document.querySelector(".places__list");
 
@@ -82,11 +83,10 @@ avatarImage.addEventListener("click", () => {
 updateAvatarForm.addEventListener("submit", (e) => {
   e.preventDefault();
 
-  const src = avatarFormUrlInput.value;
   const stop = startPopupProgress(updateAvatarPopup);
-  updateAvatar(src)
-    .then(() => {
-      avatarImage.style = `background-image: url("${src}")`;
+  updateAvatar(avatarFormUrlInput.value)
+    .then((res) => {
+      avatarImage.style = `background-image: url("${res.avatar}")`;
       closePopup(updateAvatarPopup);
     })
     .catch(console.error)
@@ -120,7 +120,7 @@ newCardForm.addEventListener("submit", function (evt) {
   addCard(newCard)
     .then(() => {
       cardsList.prepend(
-        createCard(newCard, deleteCard, likeCard, openImagePopup),
+        createCard(newCard, deleteCard, likeCard, openImagePopup, userId),
       );
       newCardForm.reset();
       closePopup(newCardPopup);
@@ -150,13 +150,15 @@ editProfileForm.addEventListener("submit", function (evt) {
 enableValidation(validationConfig);
 
 Promise.all([getCards(), getMe()]).then(([cards, me]) => {
-  setUserId(me._id);
+  userId = me._id;
 
   profileTitle.textContent = me.name;
   profileDescription.textContent = me.about;
   avatarImage.style = `background-image: url("${me.avatar}")`;
 
   for (const card of cards) {
-    cardsList.append(createCard(card, deleteCard, likeCard, openImagePopup));
+    cardsList.append(
+      createCard(card, deleteCard, likeCard, openImagePopup, userId),
+    );
   }
 });

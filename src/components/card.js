@@ -1,14 +1,15 @@
-import {
-  userId,
-  deleteCard as apiDeleteCard,
-  addLike,
-  deleteLike,
-} from "./api";
+import { deleteCard as apiDeleteCard, addLike, deleteLike } from "./api";
 
-const isCardLikedByUser = (card) =>
+const isCardLikedByUser = (card, userId) =>
   card.likes?.some((like) => like._id === userId);
 
-export function createCard(card, onDeleteClick, onLikeClick, onImageClick) {
+export function createCard(
+  card,
+  onDeleteClick,
+  onLikeClick,
+  onImageClick,
+  userId,
+) {
   const cardTemplate = document.querySelector("#card-template").content;
   const contentTemplate = cardTemplate
     .querySelector(".places__item")
@@ -37,7 +38,7 @@ export function createCard(card, onDeleteClick, onLikeClick, onImageClick) {
   const likeButton = contentTemplate.querySelector(".card__like-button");
   likeButton.classList.toggle(
     "card__like-button_is-active",
-    isCardLikedByUser(card),
+    isCardLikedByUser(card, userId),
   );
   likeButton.addEventListener("click", () => {
     onLikeClick(contentTemplate, likeButton, card);

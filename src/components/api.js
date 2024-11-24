@@ -18,10 +18,6 @@ const callApi = (url, data) =>
     return Promise.reject(`Ошибка: ${res.status}`);
   });
 
-export let userId;
-
-export const setUserId = (id) => (userId = id);
-
 export const getCards = () => callApi("cards");
 
 export const getMe = () => callApi("users/me");
