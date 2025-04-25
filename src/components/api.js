@@ -1,5 +1,5 @@
-const token = "c6fa7421-7a71-449f-b535-7d0a1f5f22f8";
-const cohortId = "wff-cohort-26";
+const token = "b4c10f5a-3f80-4eca-9376-7d76a7731e69";
+const cohortId = "wff-cohort-36";
 
 const baseUrl = `https://mesto.nomoreparties.co/v1/${cohortId}/`;
 
