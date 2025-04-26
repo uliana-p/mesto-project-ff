@@ -8,7 +8,7 @@ export function createCard(
   onDeleteClick,
   onLikeClick,
   onImageClick,
-  userId,
+  userId
 ) {
   const cardTemplate = document.querySelector("#card-template").content;
   const contentTemplate = cardTemplate
@@ -38,7 +38,7 @@ export function createCard(
   const likeButton = contentTemplate.querySelector(".card__like-button");
   likeButton.classList.toggle(
     "card__like-button_is-active",
-    isCardLikedByUser(card, userId),
+    isCardLikedByUser(card, userId)
   );
   likeButton.addEventListener("click", () => {
     onLikeClick(contentTemplate, likeButton, card);

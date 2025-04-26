@@ -21,7 +21,7 @@ const avatarImage = document.querySelector(".profile__image");
 const updateAvatarPopup = document.querySelector(".popup_type_update-avatar");
 const updateAvatarForm = document.forms.update_avatar;
 const avatarFormUrlInput = updateAvatarForm.querySelector(
-  ".popup__input_type_url",
+  ".popup__input_type_url"
 );
 
 const editProfileForm = document.forms.edit_profile;
@@ -118,9 +118,9 @@ newCardForm.addEventListener("submit", function (evt) {
   const stop = startPopupProgress(newCardPopup);
 
   addCard(newCard)
-    .then(() => {
+    .then((createdCard) => {
       cardsList.prepend(
-        createCard(newCard, deleteCard, likeCard, openImagePopup, userId),
+        createCard(createdCard, deleteCard, likeCard, openImagePopup, userId)
       );
       newCardForm.reset();
       closePopup(newCardPopup);
@@ -158,7 +158,7 @@ Promise.all([getCards(), getMe()]).then(([cards, me]) => {
 
   for (const card of cards) {
     cardsList.append(
-      createCard(card, deleteCard, likeCard, openImagePopup, userId),
+      createCard(card, deleteCard, likeCard, openImagePopup, userId)
     );
   }
 });

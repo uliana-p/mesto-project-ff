@@ -66,13 +66,24 @@ export const enableValidation = (config) => {
   }
 };
 
+// export const clearValidation = (form, config) => {
+//   const inputs = form.querySelectorAll(config.inputSelector);
+//   const submitButton = form.querySelector(config.submitButtonSelector);
+
+//   for (const input of inputs) {
+//     hideErrorMessage(input, form, config);
+//     submitButton.classList.remove(config.inactiveButtonClass);
+//     submitButton.disabled = true;
+//   }
+// };
+
 export const clearValidation = (form, config) => {
   const inputs = form.querySelectorAll(config.inputSelector);
   const submitButton = form.querySelector(config.submitButtonSelector);
 
   for (const input of inputs) {
     hideErrorMessage(input, form, config);
-    submitButton.classList.remove(config.inactiveButtonClass);
-    submitButton.disabled = true;
   }
+  submitButton.classList.add(config.inactiveButtonClass);
+  submitButton.disabled = true;
 };
